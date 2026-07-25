@@ -7,8 +7,22 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const inferenceRoutes = require('./routes/inferenceRoutes');
 
 const app = express();
+const allowedOrigins = config.corsOrigin
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors({ origin: config.corsOrigin }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origin not allowed by CORS policy'));
+    },
+  }),
+);
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/api/v1/health', healthRoutes);
@@ -16,9 +30,9 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/inference', inferenceRoutes);
 
 app.use((error, _req, res, _next) => {
+  console.error('Unhandled backend error:', error);
   return res.status(500).json({
     message: 'Unexpected backend error',
-    details: error.message,
   });
 });
 

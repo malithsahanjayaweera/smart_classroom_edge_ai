@@ -105,8 +105,9 @@ def infer() -> Any:
         frame = decode_frame(image_b64)
         result = detect_people(frame)
         return jsonify(result), 200
-    except Exception as error:
-        return jsonify({"message": "Inference failed", "details": str(error)}), 500
+    except Exception:
+        app.logger.exception("Inference pipeline failed")
+        return jsonify({"message": "Inference failed"}), 500
 
 
 if __name__ == "__main__":
