@@ -1,0 +1,11 @@
+{
+  "room": "A-204",
+  "assets": ["students", "teacher", "whiteboard", "projector", "door", "windows", "fans", "air_conditioner"],
+  "states": {
+    "students": 8,
+    "teacher": true,
+    "projector": true,
+    "fans": true,
+    "air_conditioner": true
+  }
+}
