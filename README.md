@@ -1,2 +1,2 @@
 # smart_classroom_edge_ai
-"Repository for [Project Name] — an end-to-end platform integrating modern application development and machine learning workflow to deliver intelligent insights."
+"Repository for [Project Name] — an end-to-end platform integrating modern application development and machine learning workflow to deliver intelligent insights."2uj3ghgfjrgfegrfuerjmvrdfj
