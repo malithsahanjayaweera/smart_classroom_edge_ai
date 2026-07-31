@@ -1,0 +1,4 @@
+High(&gt;10)
+Low(0-2)
+Medium(3-9)
+Servent
