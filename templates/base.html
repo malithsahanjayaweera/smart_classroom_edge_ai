@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Classroom Edge AI{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232563eb'/><circle cx='50' cy='50' r='20' fill='white'/></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav class="nav">
+        <div class="shell nav-inner">
+            <a class="brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
+                </span>
+                Smart Classroom
+            </a>
+            <div class="nav-links">
+                <a class="nav-link {% if active == 'home' %}is-active{% endif %}" href="{{ url_for('home') }}">Overview</a>
+                <a class="nav-link {% if active == 'dashboard' %}is-active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="shell footer-inner">
+            <span>Smart Classroom Edge AI System</span>
+            <span>On-device inference &middot; ONNX Runtime</span>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
