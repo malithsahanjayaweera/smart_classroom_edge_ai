@@ -45,6 +45,7 @@ def preprocess_frame_center_crop(frame):
 # Buffer for Temporal Smoothing (Stores last 30 frames predictions)
 BUFFER_SIZE = 30 
 prediction_history = deque(maxlen=BUFFER_SIZE)
+current_state_idx = None
 
 print("🚀 Smart AC Control System (Smooth Tracking Enabled)...")
 print("💡 Press 'q' on video window to stop.\n")
@@ -86,19 +87,34 @@ try:
                 confidence = probs.get(raw_label, 0.0) * 100
 
         # ========================================================
-        # 🧠 SMOOTHED SMART AC CONTROL LOGIC
+        # 🧠 SMOOTHED SMART AC CONTROL LOGIC (STEP-BY-STEP TRANSITION)
         # ========================================================
         label_lower = stable_label.lower()
 
-        if "low" in label_lower:
+        if "high" in label_lower:
+            raw_target_idx = 2
+        elif "medium" in label_lower:
+            raw_target_idx = 1
+        else:
+            raw_target_idx = 0
+
+        if current_state_idx is None:
+            current_state_idx = raw_target_idx
+        elif current_state_idx != raw_target_idx:
+            if raw_target_idx > current_state_idx:
+                current_state_idx += 1
+            else:
+                current_state_idx -= 1
+
+        if current_state_idx == 0:
             ac_status = "OFF"
             ac_temp = "N/A"
             status_color = (0, 0, 255)      # Red for OFF
-        elif "medium" in label_lower:
+        elif current_state_idx == 1:
             ac_status = "ON"
             ac_temp = "24°C"
             status_color = (0, 255, 255)    # Yellow for Normal
-        elif "high" in label_lower:
+        elif current_state_idx == 2:
             ac_status = "ON"
             ac_temp = "20°C"
             status_color = (0, 255, 0)      # Green for Maximum Cooling

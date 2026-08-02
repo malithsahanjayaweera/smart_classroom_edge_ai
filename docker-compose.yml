@@ -1,9 +1,6 @@
-version: '3.8'
-
 services:
-  ac-app:
+  app:
     build: .
-    container_name: ac_controller
-    restart: always
     ports:
-      - "5000:5000"
+      - "5001:5001"
+    restart: unless-stopped
