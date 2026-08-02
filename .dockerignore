@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.vscode/
+.git/
+debug.py
+test.py
+debug_frame.jpg
+debug_sample_frame.jpg
+*.ONNX/
+cvexport.manifest
+Dockerfile
+.dockerignore
+docker-compose.yml

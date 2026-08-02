@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Dashboard &mdash; Smart Classroom Edge AI{% endblock %}
+
+{% block content %}
+<div class="shell">
+    <div class="page-head">
+        <div>
+            <div class="section-label">Live monitoring</div>
+            <h1>System state</h1>
+        </div>
+        <span class="status-pill" id="status-pill">
+            <span class="dot"></span>
+            <span id="status-text">Idle &mdash; no source</span>
+        </span>
+    </div>
+
+    <div class="override-banner" id="override-banner" hidden>
+        <span class="override-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/></svg>
+        </span>
+        <div class="override-copy">
+            <strong>Servant override active</strong>
+            <span id="override-detail">Servant detected — AC forced OFF regardless of occupancy band.</span>
+        </div>
+        <span class="override-tag">AC FORCED OFF</span>
+    </div>
+
+    <div class="board">
+        <!-- ============ LEFT COLUMN ============ -->
+        <div class="col">
+            <section class="panel">
+                <div class="stage-wrap">
+                    <div class="stage ratio-16-9 fit-contain" id="stage">
+                        <div class="stage-empty">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+                            <p>Drop a video or image here</p>
+                            <p class="hint">H.264 MP4 recommended</p>
+                        </div>
+                        <video id="video" playsinline muted></video>
+                        <img class="media" id="photo" alt="">
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2 class="panel-title">
+                        <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                        Media Source Control Center
+                    </h2>
+                    <span class="chip-tag" id="active-source">No source</span>
+                </div>
+
+                <div class="ctl-grid" style="margin-bottom: 12px;">
+                    <label class="btn btn-primary btn-block" for="file-input">
+                        <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4a7.47 7.47 0 0 0-6.63 4.04A6 6 0 0 0 6 20h13a5 5 0 0 0 .35-9.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                        Upload Video / Image File
+                    </label>
+                    <input id="file-input" type="file" accept="video/*,image/*" multiple>
+
+                    <button class="btn btn-ghost" id="btn-webcam" type="button">
+                        <svg viewBox="0 0 24 24"><path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm9-3h-3.2l-1.5-2H7.7L6.2 6H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm-9 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+                        Webcam Feed
+                    </button>
+                </div>
+
+                <select class="field" id="loaded-select" style="margin-bottom: 16px;">
+                    <option value="">-- Choose Loaded Video / Image File --</option>
+                </select>
+
+                <div class="section-label" style="margin-bottom: 10px;">Quick sample video chips:</div>
+                <div class="chips">
+                    <button class="chip" type="button"
+                            data-sample="{{ url_for('static', filename='samples/demo_classroom.mp4') }}"
+                            data-name="Demo Classroom">Demo Classroom</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="ctl-row">
+                    <span class="ctl-label">
+                        <svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm0 8h2v-2H3v2zm0 8h2v-2H3v2zM7 5h14V3H7v2zm0 8h14v-2H7v2zm0 8h14v-2H7v2z"/></svg>
+                        Fit Mode:
+                    </span>
+                    <div class="seg" id="seg-fit">
+                        <button type="button" class="is-active" data-fit="contain">Contain</button>
+                        <button type="button" data-fit="cover">Cover</button>
+                        <button type="button" data-fit="fill">Fill</button>
+                    </div>
+                </div>
+
+                <div class="ctl-row">
+                    <span class="ctl-label">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+                        Zoom Scale:
+                    </span>
+                    <div class="slider-wrap">
+                        <input type="range" id="zoom" min="50" max="250" step="5" value="100">
+                        <span class="slider-value" id="zoom-value">100%</span>
+                    </div>
+                </div>
+
+                <div class="ctl-row">
+                    <span class="ctl-label">
+                        <svg viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+                        Aspect Ratio:
+                    </span>
+                    <div class="seg" id="seg-ratio">
+                        <button type="button" class="is-active" data-ratio="16-9">16:9</button>
+                        <button type="button" data-ratio="4-3">4:3</button>
+                        <button type="button" data-ratio="1-1">1:1 (Square)</button>
+                        <button type="button" data-ratio="auto">Auto Height</button>
+                    </div>
+                </div>
+
+                <div class="ctl-row">
+                    <span class="ctl-label">
+                        <svg viewBox="0 0 24 24"><path d="M12 2 9.2 8.6 2 9.2l5.5 4.7L5.8 21 12 17.3 18.2 21l-1.7-7.1L22 9.2l-7.2-.6z"/></svg>
+                        Border Glow:
+                    </span>
+                    <button class="btn btn-ghost btn-sm" id="btn-glow" type="button">Glow OFF</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============ RIGHT COLUMN ============ -->
+        <div class="col">
+            <div class="stat-grid">
+                <div class="stat">
+                    <div class="stat-top">
+                        <span class="stat-label">Occupancy Level</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.8 2 2 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value is-idle" id="val-occupancy">&mdash;</div>
+                    <div class="stat-note">Predicted band</div>
+                </div>
+
+                <div class="stat accent-green">
+                    <div class="stat-top">
+                        <span class="stat-label">AC State</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M13 2 4.1 12.6c-.5.6-.1 1.4.7 1.4H11l-1 8 8.9-10.6c.5-.6.1-1.4-.7-1.4H12l1-8z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value is-idle" id="val-ac-state">&mdash;</div>
+                    <div class="stat-note" id="val-reason">On or off</div>
+                </div>
+
+                <div class="stat accent-blue">
+                    <div class="stat-top">
+                        <span class="stat-label">Target AC Temp</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M15 13V5a3 3 0 1 0-6 0v8a5 5 0 1 0 6 0zm-3-9a1 1 0 0 1 1 1v3h-2V5a1 1 0 0 1 1-1z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value is-idle" id="val-temp">&mdash;</div>
+                    <div class="stat-badge" id="temp-badge">STANDBY</div>
+                </div>
+
+                <div class="stat accent-amber">
+                    <div class="stat-top">
+                        <span class="stat-label">Model Confidence</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M3.5 18.5 9 13l4 4 7.5-8.4L19 7l-6 6.7-4-4L2 17l1.5 1.5z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value is-idle" id="val-confidence">&mdash;</div>
+                    <div class="stat-note">Tag: <code id="val-tag">&mdash;</code></div>
+                    <div class="meter"><div class="meter-fill" id="confidence-meter"></div></div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <span class="stat-label">AC Running Time</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h-5v-2h3V6h2v7z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value" id="val-ac-time">0.0s</div>
+                    <div class="stat-note">Cumulative on-time</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <span class="stat-label">Frames Analysed</span>
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M4 4h4v2H6v2H4V4zm12 0h4v4h-2V6h-2V4zM4 16h2v2h2v2H4v-4zm14 0h2v4h-4v-2h2v-2zM8 8h8v8H8V8z"/></svg>
+                        </span>
+                    </div>
+                    <div class="stat-value" id="val-frames">0</div>
+                    <div class="stat-note">Inference calls sent</div>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2 class="panel-title">
+                        <svg viewBox="0 0 24 24"><path d="M3 3h2v18H3V3zm4 12h3v6H7v-6zm5-8h3v14h-3V7zm5 4h3v10h-3V11z"/></svg>
+                        Class Probability Distribution Output
+                    </h2>
+                </div>
+                <div id="prob-list">
+                    <div class="prob-empty">Awaiting first inference&hellip;</div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2 class="panel-title">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM6.4 9.4 7.8 8l3.5 3.5L7.8 15l-1.4-1.4 2.1-2.1-2.1-2.1zM18 15h-6v-2h6v2z"/></svg>
+                        Real-Time Edge Activity Logs
+                    </h2>
+                    <button class="btn btn-ghost btn-sm" id="btn-clear-logs" type="button">
+                        <svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        Clear Logs
+                    </button>
+                </div>
+                <div class="log-box" id="log-box">
+                    <div class="log-empty">&gt; Waiting for a media source&hellip;</div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
